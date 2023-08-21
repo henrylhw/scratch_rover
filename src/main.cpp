@@ -17,8 +17,8 @@ Motor left( 32, 33, 25, 12, 14);
 volatile long encoder0Pos = 0;    // encoder 1
 volatile long encoder1Pos = 0;    // encoder 2
 
-double left_kp = 3.8 , left_ki = 0 , left_kd = 0.0;             // modify for optimal performance
-double right_kp = 4 , right_ki = 0 , right_kd = 0.0;
+double left_kp = 0.001 , left_ki = 0 , left_kd = 0.0;             // modify for optimal performance
+double right_kp = 0.001 , right_ki = 0 , right_kd = 0.0;
 
 double right_input = 0, right_output = 0, right_setpoint = 0;
 PID rightPID(&right_input, &right_output, &right_setpoint, right_kp, right_ki, right_kd, DIRECT);  
@@ -66,7 +66,7 @@ void setup() {
   nh.initNode();
   nh.subscribe(sub);
   nh.advertise(speed_pub);                  //prepare to publish speed in ROS topic
-//  Serial.begin(115200);
+ Serial.begin(115200);
   
   rightPID.SetMode(AUTOMATIC);
   rightPID.SetSampleTime(1);
@@ -98,17 +98,17 @@ void loop() {
     encoder0Diff = encoder0Pos - encoder0Prev; // Get difference between ticks to compute speed
     encoder1Diff = encoder1Pos - encoder1Prev;
     
-    speed_act_left = encoder0Diff/39.65;                    
-    speed_act_right = encoder1Diff/39.65; 
+    speed_act_left = encoder0Diff/131167;                    
+    speed_act_right = encoder1Diff/140398; 
   
-    encoder0Error = (demand_speed_left*39.65)-encoder0Diff; // 3965 ticks in 1m = 39.65 ticks in 10ms, due to the 10 millis loop
-    encoder1Error = (demand_speed_right*39.65)-encoder1Diff;
+    encoder0Error = (demand_speed_left*131167)-encoder0Diff; // 3965 ticks in 1m = 39.65 ticks in 10ms, due to the 10 millis loop
+    encoder1Error = (demand_speed_right*140398)-encoder1Diff;
   
     encoder0Prev = encoder0Pos; // Saving values
     encoder1Prev = encoder1Pos;
   
-    left_setpoint = demand_speed_left*39.65;  //Setting required speed as a mul/frac of 1 m/s
-    right_setpoint = demand_speed_right*39.65;
+    left_setpoint = demand_speed_left*131167;  //Setting required speed as a mul/frac of 1 m/s
+    right_setpoint = demand_speed_right*140398;
   
     left_input = encoder0Diff;  //Input to PID controller is the current difference
     right_input = encoder1Diff;
